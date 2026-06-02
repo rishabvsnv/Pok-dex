@@ -1,42 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pokedex/core/constants/app_spacing.dart';
 import 'package:pokedex/core/widgets/cards/pokemon_card.dart';
 import 'package:pokedex/core/widgets/common/app_appbar.dart';
 import 'package:pokedex/core/widgets/common/app_scaffold.dart';
 import 'package:pokedex/core/widgets/common/empty_state.dart';
+import 'package:pokedex/features/favorites/providers/favorites_provider.dart';
 
-class FavoritesPage extends StatelessWidget {
+class FavoritesPage extends ConsumerWidget {
   const FavoritesPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Temporary mock favorites
-    final favorites = [
-      {
-        'id': 25,
-        'name': 'Pikachu',
-        'image':
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
-        'types': ['Electric'],
-      },
-
-      {
-        'id': 6,
-        'name': 'Charizard',
-        'image':
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png',
-        'types': ['Fire', 'Flying'],
-      },
-
-      {
-        'id': 149,
-        'name': 'Dragonite',
-        'image':
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/149.png',
-        'types': ['Dragon', 'Flying'],
-      },
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favorites = ref.watch(favoritesProvider);
 
     final isEmpty = favorites.isEmpty;
 
@@ -91,13 +68,13 @@ class FavoritesPage extends StatelessWidget {
                       final pokemon = favorites[index];
 
                       return PokemonCard(
-                        id: pokemon['id'] as int,
+                        id: pokemon.id,
 
-                        name: pokemon['name'] as String,
+                        name: pokemon.name,
 
-                        imageUrl: pokemon['image'] as String,
+                        imageUrl: pokemon.imageUrl,
 
-                        types: pokemon['types'] as List<String>,
+                        types: pokemon.types,
 
                         showFavorite: true,
 

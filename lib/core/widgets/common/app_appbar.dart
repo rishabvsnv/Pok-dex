@@ -82,7 +82,9 @@ class AppAppbar extends ConsumerWidget implements PreferredSizeWidget {
             filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
 
             child: Container(
-              color: Colors.white.withValues(alpha: isDark ? 0.02 : 0.04),
+              color: AppColors.pokeballWhite.withValues(
+                alpha: isDark ? 0.02 : 0.04,
+              ),
             ),
           ),
         ),
@@ -190,7 +192,7 @@ class AppAppbar extends ConsumerWidget implements PreferredSizeWidget {
                 overflow: TextOverflow.ellipsis,
 
                 style: theme.textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
+                  color: AppColors.pokeballWhite,
 
                   fontWeight: FontWeight.w900,
 
@@ -227,7 +229,7 @@ class _PremiumIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withValues(alpha: 0.12),
+      color: AppColors.pokeballWhite.withValues(alpha: 0.12),
 
       shape: const CircleBorder(),
 
@@ -240,7 +242,7 @@ class _PremiumIconButton extends StatelessWidget {
           width: 48,
           height: 48,
 
-          child: Icon(icon, color: Colors.white, size: 24),
+          child: Icon(icon, color: AppColors.pokeballWhite, size: 24),
         ),
       ),
     );

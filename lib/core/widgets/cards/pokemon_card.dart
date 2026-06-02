@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pokedex/core/utils/helpers/pokemon_color_helper.dart';
 import 'package:pokedex/core/widgets/common/app_network_image.dart';
+import 'package:pokedex/features/favorites/providers/favorites_provider.dart';
 
-class PokemonCard extends StatelessWidget {
+class PokemonCard extends ConsumerWidget {
   final int id;
   final String name;
   final String imageUrl;
@@ -29,11 +31,15 @@ class PokemonCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
     final cardColor =
         backgroundColor ?? PokemonColorHelper.getColor(types.first);
+
+    final favorites = ref.watch(favoritesProvider);
+
+    final isFavorite = favorites.any((pokemon) => pokemon.id == id);
 
     return Hero(
       tag: 'pokemon_$id',

@@ -12,6 +12,7 @@ import 'package:pokedex/core/widgets/common/app_appbar.dart';
 import 'package:pokedex/core/widgets/common/app_loader.dart';
 import 'package:pokedex/core/widgets/common/app_network_image.dart';
 import 'package:pokedex/core/widgets/common/app_scaffold.dart';
+import 'package:pokedex/features/favorites/providers/favorites_provider.dart';
 import 'package:pokedex/features/pokemon_detail/providers/pokemon_detail_provider.dart';
 
 class PokemonDetailPage extends ConsumerWidget {
@@ -25,14 +26,41 @@ class PokemonDetailPage extends ConsumerWidget {
     final pokemonAsync = ref.watch(pokemonDetailProvider(pokemonId));
 
     return AppScaffold(
+      // appBar: AppAppbar(title: 'Pokémon Details', actions: const []),
       appBar: AppAppbar(
-        title: 'Pokémon Details',
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: FavoriteButton(isFavorite: false),
-          ),
-        ],
+        title: pokemonAsync.maybeWhen(
+          data: (pokemon) {
+            return pokemon.name[0].toUpperCase() + pokemon.name.substring(1);
+          },
+
+          orElse: () => 'Pokémon',
+        ),
+
+        actions: pokemonAsync.maybeWhen(
+          data: (pokemon) {
+            final favorites = ref.watch(favoritesProvider);
+
+            final isFavorite = favorites.any((p) => p.id == pokemon.id);
+
+            return [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+
+                child: FavoriteButton(
+                  isFavorite: isFavorite,
+
+                  onTap: () {
+                    ref
+                        .read(favoritesProvider.notifier)
+                        .toggleFavorite(pokemon);
+                  },
+                ),
+              ),
+            ];
+          },
+
+          orElse: () => [],
+        ),
       ),
 
       body: pokemonAsync.when(
@@ -46,6 +74,10 @@ class PokemonDetailPage extends ConsumerWidget {
         },
 
         data: (pokemon) {
+          final favorites = ref.watch(favoritesProvider);
+
+          favorites.any((p) => p.id == pokemon.id);
+
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [

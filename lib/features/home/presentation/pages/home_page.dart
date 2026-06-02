@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pokedex/core/constants/app_spacing.dart';
+import 'package:pokedex/core/theme/app_colors.dart';
 import 'package:pokedex/core/widgets/animations/fade_animation.dart';
 import 'package:pokedex/core/widgets/cards/pokemon_card.dart';
 import 'package:pokedex/core/widgets/common/app_appbar.dart';
@@ -64,7 +65,10 @@ class _HomePageState extends ConsumerState<HomePage> {
               context.push('/favorites');
             },
 
-            icon: const Icon(Icons.favorite_rounded),
+            icon: const Icon(
+              Icons.favorite_rounded,
+              color: AppColors.pokeballWhite,
+            ),
           ),
         ],
       ),
