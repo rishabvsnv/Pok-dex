@@ -12,7 +12,7 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: AppStrings.appTitle,
+      title: AppStrings.appName,
       routerConfig: router,
     );
   }
