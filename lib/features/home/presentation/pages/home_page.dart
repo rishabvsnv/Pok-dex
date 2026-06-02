@@ -6,47 +6,39 @@ import 'package:pokedex/core/widgets/cards/pokemon_card.dart';
 import 'package:pokedex/core/widgets/common/app_appbar.dart';
 import 'package:pokedex/core/widgets/common/app_scaffold.dart';
 import 'package:pokedex/core/widgets/common/app_search_bar.dart';
+import 'package:pokedex/features/home/providers/pokemon_pagination_provider.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pokemons = [
-      {
-        'id': 1,
-        'name': 'Bulbasaur',
-        'image':
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-        'types': ['Grass', 'Poison'],
-      },
-      {
-        'id': 4,
-        'name': 'Charmander',
-        'image':
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png',
-        'types': ['Fire'],
-      },
-      {
-        'id': 7,
-        'name': 'Squirtle',
-        'image':
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png',
-        'types': ['Water'],
-      },
-      {
-        'id': 25,
-        'name': 'Pikachu',
-        'image':
-            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
-        'types': ['Electric'],
-      },
-    ];
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 300) {
+        ref.read(pokemonPaginationProvider.notifier).loadMore();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pokemonAsync = ref.watch(pokemonPaginationProvider);
 
     return AppScaffold(
       appBar: const AppAppbar(title: 'Pokédex'),
 
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           // Header Section
@@ -88,28 +80,40 @@ class HomePage extends ConsumerWidget {
           ),
 
           // Pokemon Grid
-          SliverPadding(
-            padding: const EdgeInsets.all(AppSpacing.screenPadding),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final pokemon = pokemons[index];
+          pokemonAsync.when(
+            loading: () => const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            ),
 
-                return FadeAnimation(
-                  delay: Duration(milliseconds: index * 120),
-                  child: PokemonCard(
-                    id: pokemon['id'] as int,
-                    name: pokemon['name'] as String,
-                    imageUrl: pokemon['image'] as String,
-                    types: pokemon['types'] as List<String>,
-                  ),
-                );
-              }, childCount: pokemons.length),
+            error: (error, _) => SliverFillRemaining(
+              child: Center(child: Text(error.toString())),
+            ),
 
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 18,
-                crossAxisSpacing: 18,
-                childAspectRatio: 0.72,
+            data: (pokemons) => SliverPadding(
+              padding: const EdgeInsets.all(AppSpacing.screenPadding),
+
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final pokemon = pokemons[index];
+
+                  return FadeAnimation(
+                    delay: Duration(milliseconds: index * 120),
+
+                    child: PokemonCard(
+                      id: pokemon.id,
+                      name: pokemon.name,
+                      imageUrl: pokemon.imageUrl,
+                      types: pokemon.types,
+                    ),
+                  );
+                }, childCount: pokemons.length),
+
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 18,
+                  crossAxisSpacing: 18,
+                  childAspectRatio: 0.65,
+                ),
               ),
             ),
           ),
